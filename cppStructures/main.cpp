@@ -46,7 +46,10 @@ Forest coniferous("Ufa", "coniferous", 0.2);//хвойный
 Forest foliar("Russia", "foliar", 0.3);//лиственный
 
 Tree* coniferousTrees;//хвойные деревья
+int coniferousTreesCount = 0;
+
 Tree* foliarTrees;//лиственные деревья
+int foliarTreesCount = 0;
 
 
 //вывод дерева в консоль
@@ -188,23 +191,6 @@ std::ifstream& operator >> (std::ifstream& is, Tree& tree){
 	return is;
 }
 
-/*
-struct Person 
-{
-    std::string name;
-    int age;
-};
-std::ostream& operator << (std::ostream &os, const Person &p)
-{
-    return os << p.name << " " << p.age;
-}
-
-std::istream& operator >> (std::istream& in, Person& p)
-{
-    in >> p.name >> p.age;
-    return in;
-}*/
-
 void readFromKeyboard(){
 	int n;
 	cout<<"Введите размер массива"<<endl;
@@ -214,15 +200,15 @@ void readFromKeyboard(){
 		cin>>trees[i];
 	}
 	
-	int foliarCount = 0;
-	int coniferousCount = 0;
+	foliarTreesCount = 0;
+	coniferousTreesCount = 0;
 
 	for(int i = 0; i< n; ++i){
 		if(trees[i].kind == foliar){
-			foliarCount++;
+			foliarTreesCount++;
 		}
 		if(trees[i].kind == coniferous){
-			coniferousCount++;
+			coniferousTreesCount++;
 		}
 	}
 
@@ -234,21 +220,21 @@ void readFromKeyboard(){
 		delete[] foliarTrees;
 	}
 
-	coniferousTrees = new Tree[coniferousCount];
-	foliarTrees = new Tree[foliarCount];
+	coniferousTrees = new Tree[coniferousTreesCount];
+	foliarTrees = new Tree[foliarTreesCount];
 
-	coniferousCount = 0;
-	foliarCount = 0;
+	coniferousTreesCount = 0;
+	foliarTreesCount = 0;
 
 	for(int i = 0; i< n; ++i){
 		if(trees[i].kind == foliar){
-			foliarTrees[foliarCount] = trees[i];
-			foliarCount++;
+			foliarTrees[foliarTreesCount] = trees[i];
+			foliarTreesCount++;
 
 		}
 		if(trees[i].kind == coniferous){
-			coniferousTrees[coniferousCount] = trees[i];
-			coniferousCount++;
+			coniferousTrees[coniferousTreesCount] = trees[i];
+			coniferousTreesCount++;
 		}
 	}
 
@@ -265,15 +251,15 @@ void readFromFile(){
 		cin>>trees[i];
 	}
 	
-	int foliarCount = 0;
-	int coniferousCount = 0;
+	foliarTreesCount = 0;
+	coniferousTreesCount = 0;
 
 	for(int i = 0; i< n; ++i){
 		if(trees[i].kind == foliar){
-			foliarCount++;
+			foliarTreesCount++;
 		}
 		if(trees[i].kind == coniferous){
-			coniferousCount++;
+			coniferousTreesCount++;
 		}
 	}
 
@@ -285,29 +271,85 @@ void readFromFile(){
 		delete[] foliarTrees;
 	}
 
-	coniferousTrees = new Tree[coniferousCount];
-	foliarTrees = new Tree[foliarCount];
+	coniferousTrees = new Tree[coniferousTreesCount];
+	foliarTrees = new Tree[foliarTreesCount];
 
-	coniferousCount = 0;
-	foliarCount = 0;
+	coniferousTreesCount = 0;
+	foliarTreesCount = 0;
 
 	for(int i = 0; i< n; ++i){
 		if(trees[i].kind == foliar){
-			foliarTrees[foliarCount] = trees[i];
-			foliarCount++;
+			foliarTrees[foliarTreesCount] = trees[i];
+			foliarTreesCount++;
 
 		}
 		if(trees[i].kind == coniferous){
-			coniferousTrees[coniferousCount] = trees[i];
-			coniferousCount++;
+			coniferousTrees[coniferousTreesCount] = trees[i];
+			coniferousTreesCount++;
 		}
 	}
 
 }
 
+
+Tree& findHighestTree(){
+	Tree& highest = coniferousTrees[0];
+	for(int i = 1; i< coniferousTreesCount; ++i){
+		if(coniferousTrees[i].height > highest.height){
+			highest = coniferousTrees[i];
+		}
+	}
+
+	for(int i = 0; i< foliarTreesCount; ++i){
+		if(foliarTrees[i].height > highest.height){
+			highest = foliarTrees[i];
+		}
+	}
+	return highest;
+}
+
+int treesCountWithHollow = 0;
+Tree* treesWithHollow;
+
+void getTreesWithHollow(){
+
+	if (treesCountWithHollow > 0) {
+		delete[] treesWithHollow;
+	}
+
+	for(int i = 0; i< coniferousTreesCount; ++i){
+		if(coniferousTrees[i].hasHollow){
+			treesCountWithHollow++;
+		}
+	}
+
+	for(int i = 0; i< foliarTreesCount; ++i){
+		if(foliarTrees[i].hasHollow){
+			treesCountWithHollow++;
+		}
+	}
+
+	treesWithHollow = new Tree[treesCountWithHollow];
+	treesCountWithHollow = 0;
+	for(int i = 0; i< coniferousTreesCount; ++i){
+		if(coniferousTrees[i].hasHollow){
+			treesWithHollow[treesCountWithHollow] = coniferousTrees[i];
+			treesCountWithHollow++;
+		}
+	}
+
+	for(int i = 0; i< foliarTreesCount; ++i){
+		if(foliarTrees[i].hasHollow){
+			treesWithHollow[treesCountWithHollow] = foliarTrees[i];
+			treesCountWithHollow++;
+		}
+	}
+}
+
+
 int main(){
 	setlocale(LC_ALL, "Russian");
-	Tree t;
+	/*Tree t;
 	std::cin>>t;
 	
 	ofstream ofs("file.txt");
@@ -319,8 +361,19 @@ int main(){
 	ifs.close();
 	
 	cout<<endl;
-	std::cout<<t;
+	std::cout<<t;*/
 
+	readFromKeyboard();
+	Tree& highest = findHighestTree();
+	cout<<highest<<endl;
+
+	getTreesWithHollow();
+
+	cout<<"Деревьев с дуплом "<<treesCountWithHollow<<endl;
+	for(int i =0; i< treesCountWithHollow; ++i){
+		cout<<treesWithHollow[i]<<endl;
+	}
+	//int count = sizeof(withHollow)
 
 	system("pause");
 	return 0;
