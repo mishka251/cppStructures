@@ -1,3 +1,4 @@
+1
 Тип: 'coniferous' - хвойный 'foliar' - лиственный
 foliar
 Высота

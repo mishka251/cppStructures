@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<string.h>
 
 using namespace std;
 
@@ -51,21 +52,27 @@ int coniferousTreesCount = 0;
 Tree* foliarTrees;//лиственные деревья
 int foliarTreesCount = 0;
 
+std::ostream& operator << (std::ostream& os, const Forest&forest){
+	os<<"расположение "<<forest.location<<endl;
+	os<<"тип "<<forest.type<<endl;
+	os<<"пожароопасность "<<forest.fireDanger<<endl;
+	return os;
+}
 
 //вывод дерева в консоль
 std::ostream& operator << (std::ostream& os, const Tree&tree){
 	os<<"Тип: \'coniferous\' - хвойный \'foliar\' - лиственный"<<endl;
-		
+
 	if( coniferous==tree.kind){
 		os<<"coniferous"<<endl;
 	}
 	if(foliar==tree.kind){
 		os<<"foliar"<<endl;
 	}
-	
+
 	os<<"Высота"<<endl;
 	os<<tree.height<<endl;
-	
+
 	os<<"Толщина"<<endl;
 	os<<tree.thickness<<endl;
 
@@ -87,17 +94,17 @@ std::ostream& operator << (std::ostream& os, const Tree&tree){
 //вывод дерева в файл
 std::ofstream& operator << (std::ofstream& ofs, const Tree&tree){
 	ofs<<"Тип: \'coniferous\' - хвойный \'foliar\' - лиственный"<<endl;
-		
+
 	if( coniferous==tree.kind){
 		ofs<<"coniferous"<<endl;
 	}
 	if(foliar==tree.kind){
 		ofs<<"foliar"<<endl;
 	}
-	
+
 	ofs<<"Высота"<<endl;
 	ofs<<tree.height<<endl;
-	
+
 	ofs<<"Толщина"<<endl;
 	ofs<<tree.thickness<<endl;
 
@@ -132,7 +139,7 @@ std::istream& operator >> (std::istream& is, Tree& tree){
 	}
 	cout<<"Введите высоту"<<endl;
 	is>>tree.height;
-	
+
 	cout<<"Введите толщину"<<endl;
 	is>>tree.thickness;
 
@@ -157,26 +164,27 @@ std::istream& operator >> (std::istream& is, Tree& tree){
 std::ifstream& operator >> (std::ifstream& is, Tree& tree){
 	string kind;
 	string header;
-
-	is >> header;//пропускаем заголовки
-	is>>kind;
+	getline(is, header);
+	getline(is, header);//пропускаем заголовки
+	getline(is, kind);
 	if(kind=="coniferous"){
 		tree.kind=coniferous;
 	}
 	if(kind=="foliar"){
 		tree.kind=foliar;
 	}
-	
-	is >> header;//пропускаем заголовки
+
+	getline(is, header);//пропускаем заголовки
 	is>>tree.height;
-	
-	is >> header;//пропускаем заголовки
+
+	getline(is, header);//пропускаем заголовки
+	getline(is, header);//пропускаем заголовки
 	is>>tree.thickness;
 
-	is >> header;//пропускаем заголовки
+	getline(is, header);//пропускаем заголовки
 	string hasHollow;
 
-	is >> header;//пропускаем заголовки
+	getline(is, header);//пропускаем заголовки
 	is>>hasHollow;
 
 	if(hasHollow=="Y"){
@@ -185,8 +193,9 @@ std::ifstream& operator >> (std::ifstream& is, Tree& tree){
 	if(hasHollow=="N"){
 		tree.hasHollow = false;
 	}
-	
-	is >> header;//пропускаем заголовки
+
+	getline(is, header);//пропускаем заголовки
+	getline(is, header);//пропускаем заголовки
 	is >> tree.shadowSquare;
 	return is;
 }
@@ -199,7 +208,7 @@ void readFromKeyboard(){
 	for(int i =0; i< n; ++i){
 		cin>>trees[i];
 	}
-	
+
 	foliarTreesCount = 0;
 	coniferousTreesCount = 0;
 
@@ -244,13 +253,13 @@ void readFromFile(){
 	string filename = "file.txt";
 
 	int n;
-	cout<<"Введите размер массива"<<endl;
-	cin>>n;
+	ifstream ifs(filename);
+	ifs>>n;
 	Tree* trees = new Tree[n];
 	for(int i =0; i< n; ++i){
-		cin>>trees[i];
+		ifs>>trees[i];
 	}
-	
+
 	foliarTreesCount = 0;
 	coniferousTreesCount = 0;
 
@@ -293,8 +302,8 @@ void readFromFile(){
 
 
 Tree& findHighestTree(){
-	Tree& highest = coniferousTrees[0];
-	for(int i = 1; i< coniferousTreesCount; ++i){
+	Tree& highest = coniferousTreesCount> 0? coniferousTrees[0] : foliarTrees[0];
+	for(int i = 0; i< coniferousTreesCount; ++i){
 		if(coniferousTrees[i].height > highest.height){
 			highest = coniferousTrees[i];
 		}
@@ -346,35 +355,93 @@ void getTreesWithHollow(){
 	}
 }
 
+void sortArraysByShaowSquare(){
+	for(int i = 0; i< foliarTreesCount; ++i){
+		for(int j = 0; j< i; ++j){
+			if(foliarTrees[i].shadowSquare>foliarTrees[j].shadowSquare){
+				Tree& tmp = foliarTrees[i];
+				foliarTrees[i] = foliarTrees[j];
+				foliarTrees[j] = tmp;
+			}
+		}
+	}
+
+	for(int i = 0; i< coniferousTreesCount; ++i){
+		for(int j = 0; j < i; ++j){
+			if(coniferousTrees[i].shadowSquare>coniferousTrees[j].shadowSquare){
+				Tree& tmp = coniferousTrees[i];
+				coniferousTrees[i] = coniferousTrees[j];
+				coniferousTrees[j] = tmp;
+			}
+		}
+	}
+}
+
+void printAll(){
+		for(int i = 0; i< foliarTreesCount; ++i){
+			cout<<foliarTrees[i]<<endl;
+	}
+
+	for(int i = 0; i< coniferousTreesCount; ++i){
+		cout<<coniferousTrees[i]<<endl;
+	}
+}
+
+void printForest(){
+	for(int i = 0; i< foliarTreesCount; ++i){
+		cout<<foliarTrees[i].kind<<endl;
+	}
+
+	for(int i = 0; i< coniferousTreesCount; ++i){
+		cout<<coniferousTrees[i].kind<<endl;
+	}
+}
+
+void menu(){
+	while(true){
+		cout<<"Введите команду: 0 - выход, 1 - ввод с клавиатуры, 2 - ввод из файла, 3 - вывод на экран, 4 - поиск самого высокого дерева, 5 - вывод деревьев с дуплом, 6 - сортирвока массивов, 7 - вывод информации про лес"<<endl;
+		int command;
+		cin>>command;
+
+		switch(command){
+		case 0:
+			return;
+		case 1:
+			readFromKeyboard();
+			break;
+		case 2:
+			readFromFile();
+			break;
+		case 3:
+			printAll();
+			break;
+		case 4:{
+			Tree& highest = findHighestTree();
+			cout<<highest<<endl;
+			break;
+			   }
+		case 5:
+			getTreesWithHollow();
+
+			cout<<"Деревьев с дуплом "<<treesCountWithHollow<<endl;
+			for(int i =0; i< treesCountWithHollow; ++i){
+				cout<<treesWithHollow[i]<<endl;
+			}
+			break;
+		case 6:
+			sortArraysByShaowSquare();
+			break;
+		case 7:
+			printForest();
+			break;
+		}
+	}
+}
 
 int main(){
 	setlocale(LC_ALL, "Russian");
-	/*Tree t;
-	std::cin>>t;
-	
-	ofstream ofs("file.txt");
-	ofs<<t;
-	ofs.close();
-	
-	ifstream ifs("file.txt");
-	ifs>>t;
-	ifs.close();
-	
-	cout<<endl;
-	std::cout<<t;*/
 
-	readFromKeyboard();
-	Tree& highest = findHighestTree();
-	cout<<highest<<endl;
-
-	getTreesWithHollow();
-
-	cout<<"Деревьев с дуплом "<<treesCountWithHollow<<endl;
-	for(int i =0; i< treesCountWithHollow; ++i){
-		cout<<treesWithHollow[i]<<endl;
-	}
-	//int count = sizeof(withHollow)
-
+	menu();
 	system("pause");
 	return 0;
 }
