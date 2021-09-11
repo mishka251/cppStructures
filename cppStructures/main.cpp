@@ -7,52 +7,52 @@ using namespace std;
 
 
 //структура "Лес"
-struct Forest {
-	string location;//строковое поле "расположние"
+struct Forest { // создание структуры
+	string location;//строковое поле "расположение"
 	string type;//тип леса
-	double fireDanger;//пожароопасность
+	double fireDanger;//создание поля - пожароопасность
 
-	Forest(){
-		this->location="";
+	Forest(){ // конструктор структуры
+		this->location=""; // с параметрами по умолчанию
 		this->type="";
 		this->fireDanger=0;
 	}
 
-	Forest(const Forest&forest){
-		this->fireDanger=forest.fireDanger;
+	Forest(const Forest&forest){ // конструктор копирования
+		this->fireDanger=forest.fireDanger; // копирование всех параметров
 		this->type=forest.type;
 		this->location=forest.location;
 	}
 
-	Forest(string location, string type, double fireDanger){
-		this->location=location;
+	Forest(string location, string type, double fireDanger){ // конструктор с параметрами
+		this->location=location; // закидываем параметры в структуру
 		this->fireDanger=fireDanger;
 		this->type=type;
 	}
 
-	bool operator==(const Forest& forest){
-		return this->type==forest.type;
+	bool operator==(const Forest& forest){ // оператор сравнения структур
+		return this->type==forest.type; // сравнение по типу
 	}
 };
 
-struct Tree {
-	Forest kind;//вид леса 
+struct Tree { // структура для дерева
+	Forest kind;//вид леса
 	double height;//высота
 	int thickness;//полщина
 	bool hasHollow;//есть ли в дереве дупло
 	int shadowSquare;//площадь тени от дерева
 };
 
-Forest coniferous("Ufa", "coniferous", 0.2);//хвойный
+Forest coniferous("Ufa", "coniferous", 0.2);//хвойный. созд экземпляров структуры
 Forest foliar("Russia", "foliar", 0.3);//лиственный
 
-Tree* coniferousTrees;//хвойные деревья
-int coniferousTreesCount = 0;
+Tree* coniferousTrees;//хвойные деревья. создание динамического массива
+int coniferousTreesCount = 0; // кол-во д
 
 Tree* foliarTrees;//лиственные деревья
 int foliarTreesCount = 0;
 
-std::ostream& operator << (std::ostream& os, const Forest&forest){
+std::ostream& operator << (std::ostream& os, const Forest&forest){ // оператор вывода леса на экран
 	os<<"расположение "<<forest.location<<endl;
 	os<<"тип "<<forest.type<<endl;
 	os<<"пожароопасность "<<forest.fireDanger<<endl;
@@ -92,7 +92,7 @@ std::ostream& operator << (std::ostream& os, const Tree&tree){
 }
 
 //вывод дерева в файл
-std::ofstream& operator << (std::ofstream& ofs, const Tree&tree){
+std::ofstream& operator << (std::ofstream& ofs, const Tree&tree){ //f
 	ofs<<"Тип: \'coniferous\' - хвойный \'foliar\' - лиственный"<<endl;
 
 	if( coniferous==tree.kind){
@@ -125,9 +125,9 @@ std::ofstream& operator << (std::ofstream& ofs, const Tree&tree){
 
 
 
-std::istream& operator >> (std::istream& is, Tree& tree){
-	string kind;
-	while(kind!="coniferous" && kind!="foliar"){
+std::istream& operator >> (std::istream& is, Tree& tree){ // ввод дерева с клавиатуры
+	string kind; // название типа дерева
+	while(kind!="coniferous" && kind!="foliar"){ // пока польз не введет один из допустимых типов
 		cout<<"Введите тип: \'coniferous\' - хвойный \'foliar\' - лиственный"<<endl;
 		is>>kind;
 		if(kind=="coniferous"){
@@ -161,12 +161,12 @@ std::istream& operator >> (std::istream& is, Tree& tree){
 	return is;
 }
 
-std::ifstream& operator >> (std::ifstream& is, Tree& tree){
+std::ifstream& operator >> (std::ifstream& is, Tree& tree){ // ввод дерева из файла
 	string kind;
 	string header;
-	getline(is, header);
+	getline(is, header); // чтение строки из файла
 	getline(is, header);//пропускаем заголовки
-	getline(is, kind);
+	getline(is, kind); // чтение названия типа
 	if(kind=="coniferous"){
 		tree.kind=coniferous;
 	}
@@ -200,20 +200,20 @@ std::ifstream& operator >> (std::ifstream& is, Tree& tree){
 	return is;
 }
 
-void readFromKeyboard(){
+void readFromKeyboard(){ // функция чтения массивов деревьев с клавиатуры
 	int n;
 	cout<<"Введите размер массива"<<endl;
 	cin>>n;
-	Tree* trees = new Tree[n];
+	Tree* trees = new Tree[n]; // созд динамический массив деревьев
 	for(int i =0; i< n; ++i){
-		cin>>trees[i];
+		cin>>trees[i]; // каждое дерево читаем с клавиатуры
 	}
 
 	foliarTreesCount = 0;
 	coniferousTreesCount = 0;
 
 	for(int i = 0; i< n; ++i){
-		if(trees[i].kind == foliar){
+		if(trees[i].kind == foliar){ // считаем кол-во хв и лист деревьев
 			foliarTreesCount++;
 		}
 		if(trees[i].kind == coniferous){
@@ -221,22 +221,22 @@ void readFromKeyboard(){
 		}
 	}
 
-	if(coniferousTrees){
-		delete[] coniferousTrees;
+	if(coniferousTrees){ // если не очищаем массивы хв и лист дер, если они у нас были
+		delete[] coniferousTrees; // удал
 	}
 
 	if(foliarTrees){
 		delete[] foliarTrees;
 	}
 
-	coniferousTrees = new Tree[coniferousTreesCount];
+	coniferousTrees = new Tree[coniferousTreesCount]; // создаём заново
 	foliarTrees = new Tree[foliarTreesCount];
 
 	coniferousTreesCount = 0;
 	foliarTreesCount = 0;
 
-	for(int i = 0; i< n; ++i){
-		if(trees[i].kind == foliar){
+	for(int i = 0; i< n; ++i){ // разделяем один массив на два
+		if(trees[i].kind == foliar){ // разделяем по типу деревьев
 			foliarTrees[foliarTreesCount] = trees[i];
 			foliarTreesCount++;
 
@@ -249,7 +249,7 @@ void readFromKeyboard(){
 
 }
 
-void readFromFile(){
+void readFromFile(){ // чтение массива деревьев из файла
 	string filename = "file.txt";
 
 	int n;
@@ -301,10 +301,11 @@ void readFromFile(){
 }
 
 
-Tree& findHighestTree(){
-	Tree& highest = coniferousTreesCount> 0? coniferousTrees[0] : foliarTrees[0];
+Tree& findHighestTree(){ // поиск самого высокого дерева
+	Tree& highest = coniferousTreesCount> 0? coniferousTrees[0] : foliarTrees[0]; // бёрем какое-то первое попавшееся
+    // дерево в качестве исходного самого  высокого
 	for(int i = 0; i< coniferousTreesCount; ++i){
-		if(coniferousTrees[i].height > highest.height){
+		if(coniferousTrees[i].height > highest.height) // сравнение самого высокого и очередного лиственного
 			highest = coniferousTrees[i];
 		}
 	}
@@ -320,7 +321,7 @@ Tree& findHighestTree(){
 int treesCountWithHollow = 0;
 Tree* treesWithHollow;
 
-void getTreesWithHollow(){
+void getTreesWithHollow(){ //пооиск всех деревьев с дуплами
 
 	if (treesCountWithHollow > 0) {
 		delete[] treesWithHollow;
@@ -338,7 +339,7 @@ void getTreesWithHollow(){
 		}
 	}
 
-	treesWithHollow = new Tree[treesCountWithHollow];
+	treesWithHollow = new Tree[treesCountWithHollow]; // создаём массив для деревьев с дуплами
 	treesCountWithHollow = 0;
 	for(int i = 0; i< coniferousTreesCount; ++i){
 		if(coniferousTrees[i].hasHollow){
@@ -355,7 +356,7 @@ void getTreesWithHollow(){
 	}
 }
 
-void sortArraysByShaowSquare(){
+void sortArraysByShaowSquare(){ // сортируем массивы по размеру тени деревьев
 	for(int i = 0; i< foliarTreesCount; ++i){
 		for(int j = 0; j< i; ++j){
 			if(foliarTrees[i].shadowSquare>foliarTrees[j].shadowSquare){
